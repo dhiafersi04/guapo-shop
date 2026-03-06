@@ -15,19 +15,18 @@ if (rawConnectionString.startsWith('mysql:')) {
     rawConnectionString = 'postgresql://postgres:postgres@localhost:5432/postgres';
 }
 
-// Ensure we are NOT using port 3306 (MySQL default) for Postgres
-if (rawConnectionString.includes(':3306')) {
-    console.warn('⚠️ WARNING: Port 3306 detected in connection string. Forcing port 5432.');
-    rawConnectionString = rawConnectionString.replace(':3306', ':5432');
+// Log connection params during build/init to debug Vercel logs
+const dbUrl = new URL(rawConnectionString);
+console.log(`🔌 DB Init: Targeting ${dbUrl.hostname}:${dbUrl.port || '5432'}`);
+
+if (dbUrl.port === '3306' || rawConnectionString.includes(':3306')) {
+    throw new Error("⛔ CRITICAL_ERROR: MySQL port 3306 detected in PostgreSQL driver. Registry integrity failure. System must use Supabase Port 6543/5432.");
 }
 
 export const pool = new Pool({
     connectionString: rawConnectionString,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
-
-// Log connection params during build/init to debug Vercel logs
-console.log(`🔌 DB Init: Targeting ${new URL(rawConnectionString).hostname}:${new URL(rawConnectionString).port || '5432'}`);
 
 /**
  * Helper to easily execute queries.
