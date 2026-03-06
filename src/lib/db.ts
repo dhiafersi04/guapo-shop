@@ -1,8 +1,14 @@
 import { Pool } from 'pg';
 
 // Supabase Connection (PostgreSQL)
-// This will use the DATABASE_URL environment variable when hosted on Vercel
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres';
+// Vercel Supabase integration provides variables under different names.
+// We check them in order of priority.
+const connectionString =
+    process.env.DATABASE_URL ||
+    process.env.DATABASE_POSTGRES_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.DATABASE_POSTGRES_PRISMA_URL ||
+    'postgresql://postgres:postgres@localhost:5432/postgres';
 
 export const pool = new Pool({
     connectionString,
