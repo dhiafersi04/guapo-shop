@@ -6,10 +6,17 @@ import ProductCard from "@/components/ProductCard";
 export const dynamic = 'force-dynamic';
 
 export default async function DropsPage() {
-    // Fetch all active products
-    const products = await query<any[]>(
-        'SELECT * FROM products ORDER BY "createdAt" DESC'
-    );
+    let products: any[] = [];
+
+    try {
+        // Fetch all active products
+        products = await query<any[]>(
+            'SELECT * FROM products ORDER BY "createdAt" DESC'
+        );
+    } catch (e) {
+        console.error("⛔ DROPS_PAGE_DB_ERROR", e);
+        products = [];
+    }
 
     return (
         <div className="min-h-screen pb-20">
